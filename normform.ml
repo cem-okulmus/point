@@ -273,7 +273,7 @@ let key_exercises normform input () =
 
         printf "\n\t\t%s,\nCanonical: \t%s"  
                (fdep_to_string fdep ) (fdep_to_string $ canonical fdep );
-        printf "\nWith keys: \t { %s }" $ 
+        printf "\nWith keys: \t{ %s }" $ 
                String.concat ", " ( List.map sch_to_string $ get_key_cand input fdep)  
     )
 
@@ -320,8 +320,9 @@ let get_input_full () =
 let rec ask_repeat f read main () : unit = 
     let rec ask_repeat f input read main () : unit = 
         f input ();
-        printf "\n\nRun the algorithm again? [Y]es (Same Input)/[D]ifferent Input/[B]ack to selection/[Q]uit :";
-        match (Char.uppercase_ascii $ String.get (robust read_line()) 0 ) with 
+        printf "\n\nRun the algorithm again? [Y]es (Same Input)/[D]ifferent Input/[B]ack to selection/[Q]uit:";
+        let answer = String.concat "" [robust read_line ();" "]  in 
+        match (Char.uppercase_ascii $ String.get answer 0 ) with 
         | 'Y' | 'y'     -> ask_repeat f input read main ()  
         | 'D' | 'd'     -> ask_repeat f (read ()) read main () 
         | 'B' | 'b'     -> main ()
@@ -330,12 +331,12 @@ let rec ask_repeat f read main () : unit =
 
 let rec main () : unit = 
    let options =  
-        [("Synthesis algorithm (for 3rd Normalform)"             ,`Full   synthesis_procedure           ); 
-         ("Decomposition algorithm (for Boyce-Codd Normalform)"  ,`Full   decomposition                 );
-         ("Produce random dependencies (Neither 3NF nor BCNF)"   ,`Schema (key_exercises neither        ));
-         ("Produce random dependencies (3NF and not BCNF)"       ,`Schema (key_exercises third_only     ));
-         ("Produce random dependencies (In BCNF)"                ,`Schema (key_exercises is_in_bcnf     ));
-         ("Functional Dependency tools "                         ,`Full   latex_transformer             )]
+        [("Synthesis algorithm (for 3NF)"          ,`Full   synthesis_procedure           ); 
+         ("Decomposition algorithm (for BCNF)"     ,`Full   decomposition                 );
+         ("Produce random dependencies (Not 3NF )" ,`Schema (key_exercises neither        ));
+         ("Produce random dependencies (3NF only)" ,`Schema (key_exercises third_only     ));
+         ("Produce random dependencies (In BCNF)"  ,`Schema (key_exercises is_in_bcnf     ));
+         ("Functional Dependency tools "           ,`Full   latex_transformer             )]
     in
 
     List.iteri (fun i (a,_) -> printf "%n.\t %s\n" i a; ) options;
@@ -343,7 +344,7 @@ let rec main () : unit =
 
     printf "\n\nWhich algorithm do you want to see presented? Your choice: ";
     match robust read_int () with 
-         n when n > 0 && n < List.length options     -> 
+         n when n >= 0 && n < List.length options     -> 
             (   match List.nth options n with 
                 | _,`Full   b   ->  ask_repeat b get_input_full   main ()
                 | _,`Schema b   ->  ask_repeat b get_input_schema main ()

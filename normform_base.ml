@@ -48,7 +48,7 @@ let sch_to_string t =
 let print_fdep fmt t  =     
     Format.fprintf fmt "%s" $ fdep_to_string t  ;;
 
-let rem_dup a = List.sort_uniq Pervasives.compare a
+let rem_dup a = List.sort_uniq Schema.compare a
 
 let rem_dup_sch a = 
     let compare (x0,y0) (x1,y1) =match Schema.compare x0 x1 with
