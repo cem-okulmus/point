@@ -130,14 +130,14 @@ let rec decomposition_procedure n res =
     printf "\n\nCurrent schemas: \n\n"; 
     List.iter (fun (num,s,f) -> 
         printf "\tSchema_%n: %s \n \tFunctional Dep: %s \n\n" 
-                num (sch_to_string s) (fdep_to_string  f )) res;
+                num (schema_italics s) (fdep_to_string  f )) res;
     match List.find_opt (fun (n,s,f) -> not $ is_in_bcnf s f) res with
     | None -> 
         printf "Schemas are all in BCNF. Nothing to be done.\n"
     | Some (num,schema,fdep) ->
     (   
         printf "\n\n\tSchema_%n: %s is not in BCNF! \n\n" 
-                num (sch_to_string schema); 
+                num (schema_italics schema); 
 
         printf  "Following violating dependencies found: \n";
         let violating =  get_bcnf_violating_deps schema fdep in 
@@ -150,12 +150,12 @@ let rec decomposition_procedure n res =
         let (s,f) = (List.nth violating k) in 
 
         printf "\n\nDecomposing existing Schema_%n: %s via %s: \n" 
-                num (sch_to_string schema) (fdep_to_string [(s,f)]);
+                num (schema_italics schema) (fdep_to_string [(s,f)]);
         let (s1,f1),(s2,f2) = decompose_schema schema fdep (s,f)  in 
         printf "\n\tSchema_%n: %s \nFunctional Dep: %s  \n" 
-                (n) (sch_to_string s1 )  (fdep_to_string $ canonical f1);
+                (n) (schema_italics s1 )  (fdep_to_string $ canonical f1);
         printf "\n\tSchema_%n: %s \nFunctional Dep: %s \n" 
-                (n+1) (sch_to_string s2 )  (fdep_to_string $  canonical f2);
+                (n+1) (schema_italics s2 )  (fdep_to_string $  canonical f2);
 
         decomposition_procedure (n+2) $ List.filter ( (<>) (num,schema,fdep) ) (res@[((n),s1,canonical f1);((n+1),s2,canonical f2)])  
     )
@@ -169,7 +169,7 @@ let synthesis_procedure (s,f) () =
         ignore $ read_line ()   in
     printf "\nWorking schema: \n\n"; 
     printf "Schema: \t\t%s \nFun. dependencies: \t%s \nKeys: \t\t\t{ %s } \n\n" 
-            (sch_to_string s) (fdep_to_string f ) (String.concat "," (List.map sch_to_string (get_key_cand s f)));
+            (schema_italics s) (fdep_to_string f ) (String.concat "," (List.map sch_to_string (get_key_cand s f)));
     if (is_in_3NF s f) then 
         printf "Already in 3rd normal form, nothing to be done. \n"
     else 
@@ -196,7 +196,7 @@ let synthesis_procedure (s,f) () =
         let schemas = create_schemas (closure s f) comb in  (* need closure here*)
         List.iter (fun (s,f) -> 
             printf "\tSchema: %s \n \tFunctional dependencies: %s \n\n"
-                    (sch_to_string s) (fdep_to_string $ canonical f); ) schemas;
+                    (schema_italics s) (fdep_to_string $ canonical f); ) schemas;
         proceed ();
         printf "\t \t 3. Checking if a key candidate present in schemas:\n";
         printf "\t \t ==================================================\n";
@@ -208,7 +208,7 @@ let synthesis_procedure (s,f) () =
         let key_schemas =  match check_for_prim_key s f schemas with 
             | Some (s,f) -> 
                 printf "Schema %s already contains a key candidate.\n\n"
-                        (sch_to_string s);
+                        (schema_italics s);
                 schemas
             | None       -> 
             (   
@@ -217,7 +217,7 @@ let synthesis_procedure (s,f) () =
                 let key_dep = fitting_deps key (closure s f) in
 
                 printf "\tSchema: %s \n \tFunctional dependencies: %s \n\n" 
-                        (sch_to_string key) (fdep_to_string key_dep );
+                        (schema_italics key) (fdep_to_string key_dep );
                 (key,key_dep)::schemas 
             ) in
 
@@ -230,7 +230,7 @@ let synthesis_procedure (s,f) () =
 
         List.iter (fun (s,f) -> 
             printf "\tSchema: %s \n \tFunctional dependencies: %s \n\n"
-                    (sch_to_string s) (fdep_to_string $ canonical f); ) final_schemas;
+                    (schema_italics s) (fdep_to_string $ canonical f); ) final_schemas;
 
 
         printf "Schemas are all in 3rd Normalform. \n\n"
@@ -266,7 +266,7 @@ let key_exercises normform input () =
     if equal input empty then  
     (   printf "Can't work on empty schema \n"; () )
     else    
-    (  printf "\n\nSchema \t\t %s" (sch_to_string input);
+    (  printf "\n\nSchema \t\t %s" (schema_italics input);
 
         printf "\n\nProducing random dependency: \n"; 
         let fdep = repeat_until predicate fdep_generate input in 
@@ -287,11 +287,13 @@ let latex_transformer (s,f) () =
         Buffer.add_string buf "\\}";
         Buffer.contents buf in
 
-    printf "\nWorking schema: %s\n\n" (sch_to_string s); 
-    printf "Functional dep.\t %s \n" (fdep_to_string  f);
-    printf "Latex import\t %s \n\n" (fdep_to_latex  f);
+    printf "\nWorking schema: %s\n\n"  (schema_italics s); 
+    printf "Functional dep.\t %s \n"   (fdep_to_string  f);
+    printf "               \t %s \n\n" (fdep_to_latex   f);
+    printf "Canonical Cover\t %s \n"   (fdep_to_string $ canonical  f);
+    printf "               \t %s \n\n" (fdep_to_latex  $ canonical  f );
 
-    printf "Keys\t { %s } \n\n" 
+    printf "Keys\t\t { %s } \n\n" 
           $$ String.concat ", " $ List.map sch_to_string (get_key_cand s f)
 
 let rec robust_read parser = 
@@ -313,7 +315,7 @@ let get_input_full () =
     let f = get_input_fdep () in 
     if equal s empty then 
     (  printf "\nEmpty schema entered, derived minimal schema %s based on dependencies.\n"
-        (sch_to_string $ implicit_schema f) ;
+        (schema_italics $ implicit_schema f) ;
        implicit_schema f, f )
     else  s,f
 

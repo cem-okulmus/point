@@ -42,7 +42,8 @@ let fdep_to_string (t:functional_dep) =
     Buffer.add_string buf " }";
     Buffer.contents buf 
 
-let sch_to_string t = 
+
+let schema_italics t = 
     String.concat "" ["\x1B[3m";sch_to_string t;"\x1B[0m"]
 
 let print_fdep fmt t  =     
