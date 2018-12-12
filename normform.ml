@@ -70,6 +70,10 @@ let is_in_3NF schema fdep =
     let subset_of_key a = for_all (fun c -> List.exists  (fun x -> mem c x) keys) a  in
     List.for_all (fun (a,b) -> is_superkey a || subset_of_key b) fdep
 
+
+let decompose (fdep:functional_dep ) = 
+    List.flatten $ List.map (fun (a,b) -> List.map (fun c -> a, singleton c) $ to_list b) fdep 
+
 let get_smallest_cover fdep a b :schema= 
     List.filter (fun a -> subset b (get_cover fdep a)) (powerset a) 
     |>List.fold_left (fun prev next -> 
@@ -179,11 +183,13 @@ let synthesis_procedure (s,f) () =
 
         printf "Left-reduction: \n\n";
         let left = leftred f in 
-        printf "%s" (fdep_to_string left);
+        printf "\t\t%s\n" (fdep_to_string left);
+        printf "(with decompose)%s" (fdep_to_string $$ leftred $ decompose f);
 
         printf "\n\nRight-reduction: \n\n";
         let right = rightred left in 
-        printf "%s" (fdep_to_string right);
+        printf "\t\t%s\n" (fdep_to_string right);
+        printf "(with decompose)%s" (fdep_to_string $$ rightred $$ leftred $ decompose f);
 
         printf "\n\nCombination step: \n\n";
         let comb = combine_step right in 
