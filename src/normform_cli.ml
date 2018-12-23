@@ -1,13 +1,14 @@
 (* 
  *  The command line interface for POINT.
- *  
- * 
  *)
+
 open Printf
 open Normform
 open Normform_base
 open Schema
 
+let rec robust f x = 
+    try (f x ) with _ -> Printf.printf "\nWrong input. Try again:"; robust f x
 
 let rec robust_read parser = 
     try ( parser (robust read_line ()) )
