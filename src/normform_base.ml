@@ -84,5 +84,3 @@ let list_mem a s =
 
 let rec robust f x = 
     try (f x ) with _ -> Printf.printf "\nWrong input. Try again:"; robust f x
-
-let specialstrig = "a special string"

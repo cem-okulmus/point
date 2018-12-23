@@ -23,7 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *)
-open Normform_base
+open Point
+open Point.Normform_base
 open Js_of_ocaml
 module Html = Dom_html
 module T = Tyxml_js.Html5
@@ -70,12 +71,25 @@ let onload _ =
       div ~a:[a_class ["tabcontent"]; a_id "FDtool"] [
         p [pcdata "Generate keys, canonical forms, and LaTeX export for given FD"];
 
-        strong [pcdata "Schema  "]; input ~a:[a_id "input_schema"] (); br ();
+        strong [pcdata "Schema  "]; input ~a:[a_id "input_schema"] (); 
+        span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+        span ~a:[a_id "error_fdep"; a_style "color: red;"] [pcdata ""] ;  br ();
         h4 ~a:[a_style "display: inline-block;"] [pcdata "Functional Dependencies"; br ();
         textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep";a_rows 20;a_cols 60]  (pcdata "" ); ]; 
         span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
         h4 ~a:[a_style "display: inline-block;"] [pcdata "Output"; br ();
         textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 20;a_cols 80;a_readonly ()] (pcdata "" )]; 
+
+        h2 [pcdata "Testing equivalence"];
+        span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+        span ~a:[a_id "error_fdep2"; a_style "color: red;"] [pcdata ""] ;  br ();
+        h4 ~a:[a_style "display: inline-block;"] [pcdata "First Dependency"; br ();
+        textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep2";a_rows 20;a_cols 70]  (pcdata "" ); ]; 
+        span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+        h4 ~a:[a_style "display: inline-block;"] [pcdata "Second Dependency"; br ();
+        textarea ~a:[ a_style "font-size: 13pt"; a_id "input_fdep3";a_rows 20;a_cols 70] (pcdata "" )]; 
+        br ();        
+        strong [pcdata "Result:  "]; input ~a:[a_id "output_fdep2"; a_size 50; a_readonly()] (); 
 
       ];
       
@@ -97,11 +111,16 @@ let onload _ =
 
   let input_schema = (Js.Unsafe.coerce  (Html.getElementById "input_schema")) in 
   let input_fdep   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep")) in 
+  let input_fdep2   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep2")) in 
+  let input_fdep3   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep3")) in 
   let output_fdep  = (Js.Unsafe.coerce  (Html.getElementById "output_fdep")) in 
+  let output_fdep2  = (Js.Unsafe.coerce  (Html.getElementById "output_fdep2")) in 
+  let error_fdep   = (Js.Unsafe.coerce  (Html.getElementById "error_fdep")) in 
+  let error_fdep2   = (Js.Unsafe.coerce  (Html.getElementById "error_fdep2")) in 
 
   input_fdep##.oninput := input_schema##.oninput := Html.handler (fun _ -> 
       (
-        output_fdep##.value := (Js.string "");
+        error_fdep##.innerHTML := (Js.string "");
         try
          (  Firebug.console##log  input_fdep##.value;
             let fdep   = Normform.get_fdep $ Js.to_string input_fdep##.value in 
@@ -113,7 +132,29 @@ let onload _ =
             Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep));
             
             output_fdep##.value := (Js.string $ Normform.latex_transformer (schema,fdep) () ))
-        with _ -> output_fdep##.value := (Js.string "Couldn't parse your input. 🙁"); (); 
+        with _ -> error_fdep##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
+      );
+      Js._true );
+
+
+  input_fdep2##.oninput := input_fdep3##.oninput := Html.handler (fun _ -> 
+      (
+        error_fdep2##.innerHTML := (Js.string "");
+        try
+         (  Firebug.console##log  input_fdep2##.value;
+            let fdep2   = Normform.get_fdep $ Js.to_string input_fdep2##.value in 
+            Firebug.console##log  input_fdep3##.value;
+            let fdep3   = Normform.get_fdep $ Js.to_string input_fdep3##.value in 
+
+            Firebug.console##log  input_schema##.value ;
+            let schema = Normform.get_schema $ Js.to_string input_schema##.value in 
+            
+            Firebug.console##log  (Js.string $ "Schema: " ^ (Normform_base.sch_to_string schema));
+            Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep2));
+            Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep3));
+            
+            output_fdep2##.value := (Js.string  "TODO" ))
+        with _ -> error_fdep2##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
       );
       Js._true );
   Js._false

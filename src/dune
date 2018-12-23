@@ -1,6 +1,15 @@
+(ocamllex normform_lex) 
+(ocamlyacc normform_pars)
+
+(library
+  (name point)
+  (modules normform normform_base normform_lex normform_pars))
+
+
 (executables
   (names normform_web normform_cli)
-  (libraries js_of_ocaml js_of_ocaml-tyxml)
+  (libraries js_of_ocaml js_of_ocaml-tyxml point)
+  (modules normform_web normform_cli)
   (preprocess (pps js_of_ocaml-ppx  ) ) )
 
 (rule
@@ -8,14 +17,6 @@
   (action
     (run %{bin:js_of_ocaml} --noruntime %{lib:js_of_ocaml-compiler:runtime.js}
          --source-map %{dep:normform_web.bc} -o %{targets} --pretty)))
-
-(ocamllex normform_lex) 
-(ocamlyacc normform_pars)
-
-(rule 
-  (targets normform)
-  (deps normfom_base.ml normform_lex.ml normform_pars.ml) 
-  (action (run ocamlbuild normform.native)))
 
 (alias
   (name DEFAULT)

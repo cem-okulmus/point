@@ -302,6 +302,5 @@ let latex_transformer (s,f) () =
     ^ (sprintf "               \t %s \n\n" (fdep_to_latex   f))
     ^ (sprintf "Canonical Cover\t %s \n"   (fdep_to_string $ canonical  f))
     ^ (sprintf "               \t %s \n\n" (fdep_to_latex  $ canonical  f ))
-
     ^ (sprintf "Keys\t\t { %s } \n\n" 
               $$ String.concat ", " $ List.map sch_to_string (get_key_cand s f))
