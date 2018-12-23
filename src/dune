@@ -19,5 +19,5 @@
          --source-map %{dep:normform_web.bc} -o %{targets} --pretty)))
 
 (alias
-  (name DEFAULT)
+  (name default)
   (deps normform_web.js normform_cli.exe))

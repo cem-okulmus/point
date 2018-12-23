@@ -55,11 +55,11 @@ let print_fdep fmt t  =
 
 let rem_dup a = List.sort_uniq Schema.compare a
 
-let rem_dup_sch a = 
-    let compare (x0,y0) (x1,y1) =match Schema.compare x0 x1 with
-        | 0 -> Schema.compare y0 y1
-        | c -> c in
-    List.sort_uniq compare a
+let fdep_compare (x0,y0) (x1,y1) =match Schema.compare x0 x1 with
+    | 0 -> Schema.compare y0 y1
+    | c -> c
+
+let rem_dup_sch a = List.sort_uniq fdep_compare a
 
 let remove_dep fdep (a:schema) (b:schema) = 
     List.filter (fun (c,d) -> not (equal a c && equal d b)) fdep  

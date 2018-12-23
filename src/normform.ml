@@ -24,8 +24,7 @@ let closure (schema:schema) (fdep:functional_dep) : functional_dep =
     let trivial_deps = List.map (fun a -> (a,empty)) (powerset schema) in 
     let temp = sanity $ fixpoint extend (fdep @ trivial_deps) in
     sanity $ right_extend temp
-
-
+    
 let attr_extend fdep s : schema = match List.find_opt (fun (a2,b2) -> subset a2 s && not ( subset b2 s)) fdep with
     | None          -> s
     | Some (a3,b3)  -> s @@ b3
@@ -304,3 +303,20 @@ let latex_transformer (s,f) () =
     ^ (sprintf "               \t %s \n\n" (fdep_to_latex  $ canonical  f ))
     ^ (sprintf "Keys\t\t { %s } \n\n" 
               $$ String.concat ", " $ List.map sch_to_string (get_key_cand s f))
+
+let equiv_test schema fdep1 fdep2 = 
+    let clsr1 = closure schema fdep1 in 
+    let clsr2 = closure schema fdep2 in 
+    let subset_list l1 l2 = 
+        List.for_all (fun (a,b) -> List.exists (fun (c,d) -> fdep_compare (a,b) (c,d) == 0) l1) l2 in  
+    if subset_list clsr1 clsr2 && subset_list clsr2 clsr1 
+        then "Both dependencies are closure-equivalent."
+    else 
+        try 
+            let a,b = List.find (fun (a,b) -> not ( subset b (get_cover fdep2 a) ) ) fdep1 in
+            sprintf "The dependency ( %s → %s ) of the first is not present in the other FD" 
+            (sch_to_string a) (sch_to_string b)
+        with _ -> 
+            let a,b = List.find (fun (a,b) -> not ( subset b (get_cover fdep1 a) ) ) fdep2 in
+            sprintf "The dependency ( %s → %s ) of the second is not present in the other FD" 
+            (sch_to_string a) (sch_to_string b) 

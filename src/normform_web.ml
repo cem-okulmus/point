@@ -33,6 +33,9 @@ let getElementsByClassName name =
   Js.Unsafe.meth_call
     Dom_html.document "getElementsByClassName" [|Js.Unsafe.inject name|]
 
+let coerce a =
+  (Js.Unsafe.coerce a)
+
 let onload _ =
   let d = Html.document in
   let body =
@@ -44,12 +47,12 @@ let onload _ =
     Dom.list_of_nodeList $ getElementsByClassName (Js.string "tablink active") 
     |> List.iter (fun e -> e##.className := Js.string ("tablink") ); 
     (Html.getElementById name)##.style##.display := Js.string "block";  
-    let active_tablink = ((Js.Unsafe.coerce event)##.currentTarget) in 
+    let active_tablink = (coerce event)##.currentTarget in 
     active_tablink##.className := Js.string ( (Js.to_string active_tablink##.className) ^ " active") in
 
   let html_div = Tyxml_js.To_dom.of_body T.( 
      body [ 
-      h1 [pcdata "Presentation of interactive Normalform transformations"];
+      h1 [pcdata "Presentation Of Interactive Normalform Transformations"];
       p [pcdata "Choose which tool you want to use (click the tab)"];
       div ~a:[a_class ["tab"];] [
 
@@ -81,6 +84,8 @@ let onload _ =
         textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 20;a_cols 80;a_readonly ()] (pcdata "" )]; 
 
         h2 [pcdata "Testing equivalence"];
+        p [pcdata "Don't forget to enter the schema above. Won't produce correct results with an empty one"];
+        p [pcdata "Note: This is computed using the _entire_ transitive closure as of now, so fairly inefficient"];
         span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
         span ~a:[a_id "error_fdep2"; a_style "color: red;"] [pcdata ""] ;  br ();
         h4 ~a:[a_style "display: inline-block;"] [pcdata "First Dependency"; br ();
@@ -89,6 +94,8 @@ let onload _ =
         h4 ~a:[a_style "display: inline-block;"] [pcdata "Second Dependency"; br ();
         textarea ~a:[ a_style "font-size: 13pt"; a_id "input_fdep3";a_rows 20;a_cols 70] (pcdata "" )]; 
         br ();        
+        button ~a:[a_id "equiv_button"] [pcdata "Check equivalence"] ;
+        span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
         strong [pcdata "Result:  "]; input ~a:[a_id "output_fdep2"; a_size 50; a_readonly()] (); 
 
       ];
@@ -109,14 +116,15 @@ let onload _ =
   Dom.appendChild body html_div;
   (* tab_function "FDtool"; *)
 
-  let input_schema = (Js.Unsafe.coerce  (Html.getElementById "input_schema")) in 
-  let input_fdep   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep")) in 
-  let input_fdep2   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep2")) in 
-  let input_fdep3   = (Js.Unsafe.coerce  (Html.getElementById "input_fdep3")) in 
-  let output_fdep  = (Js.Unsafe.coerce  (Html.getElementById "output_fdep")) in 
-  let output_fdep2  = (Js.Unsafe.coerce  (Html.getElementById "output_fdep2")) in 
-  let error_fdep   = (Js.Unsafe.coerce  (Html.getElementById "error_fdep")) in 
-  let error_fdep2   = (Js.Unsafe.coerce  (Html.getElementById "error_fdep2")) in 
+  let input_schema = coerce (Html.getElementById "input_schema" )  in 
+  let input_fdep   = coerce (Html.getElementById "input_fdep"   )  in 
+  let input_fdep2  = coerce (Html.getElementById "input_fdep2"  )  in 
+  let input_fdep3  = coerce (Html.getElementById "input_fdep3"  )  in 
+  let output_fdep  = coerce (Html.getElementById "output_fdep"  )  in 
+  let output_fdep2 = coerce (Html.getElementById "output_fdep2" )  in 
+  let error_fdep   = coerce (Html.getElementById "error_fdep"   )  in 
+  let error_fdep2  = coerce (Html.getElementById "error_fdep2"  )  in 
+  let equiv_button = coerce (Html.getElementById "equiv_button" )  in 
 
   input_fdep##.oninput := input_schema##.oninput := Html.handler (fun _ -> 
       (
@@ -136,8 +144,7 @@ let onload _ =
       );
       Js._true );
 
-
-  input_fdep2##.oninput := input_fdep3##.oninput := Html.handler (fun _ -> 
+   equiv_button##.onclick := Html.handler (fun _ -> 
       (
         error_fdep2##.innerHTML := (Js.string "");
         try
@@ -153,7 +160,7 @@ let onload _ =
             Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep2));
             Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep3));
             
-            output_fdep2##.value := (Js.string  "TODO" ))
+            output_fdep2##.value := (Js.string $ Normform.equiv_test schema fdep2 fdep3 ))
         with _ -> error_fdep2##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
       );
       Js._true );
