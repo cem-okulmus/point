@@ -23,8 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *)
-open Point
-open Point.Normform_base
+open Point.Lib
+open Point.Base
 open Js_of_ocaml
 module Html = Dom_html
 module T = Tyxml_js.Html5
@@ -131,15 +131,15 @@ let onload _ =
         error_fdep##.innerHTML := (Js.string "");
         try
          (  Firebug.console##log  input_fdep##.value;
-            let fdep   = Normform.get_fdep $ Js.to_string input_fdep##.value in 
+            let fdep   = get_fdep $ Js.to_string input_fdep##.value in 
 
             Firebug.console##log  input_schema##.value ;
-            let schema = Normform.get_schema $ Js.to_string input_schema##.value in 
+            let schema = get_schema $ Js.to_string input_schema##.value in 
             
-            Firebug.console##log  (Js.string $ "Schema: " ^ (Normform_base.sch_to_string schema));
-            Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep));
+            Firebug.console##log  (Js.string $ "Schema: " ^ (sch_to_string schema));
+            Firebug.console##log  (Js.string  $ "Fdep: " ^(fdep_to_string fdep));
             
-            output_fdep##.value := (Js.string $ Normform.latex_transformer (schema,fdep) () ))
+            output_fdep##.value := (Js.string $ latex_transformer (schema,fdep) () ))
         with _ -> error_fdep##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
       );
       Js._true );
@@ -149,18 +149,18 @@ let onload _ =
         error_fdep2##.innerHTML := (Js.string "");
         try
          (  Firebug.console##log  input_fdep2##.value;
-            let fdep2   = Normform.get_fdep $ Js.to_string input_fdep2##.value in 
+            let fdep2   = get_fdep $ Js.to_string input_fdep2##.value in 
             Firebug.console##log  input_fdep3##.value;
-            let fdep3   = Normform.get_fdep $ Js.to_string input_fdep3##.value in 
+            let fdep3   = get_fdep $ Js.to_string input_fdep3##.value in 
 
             Firebug.console##log  input_schema##.value ;
-            let schema = Normform.get_schema $ Js.to_string input_schema##.value in 
+            let schema = get_schema $ Js.to_string input_schema##.value in 
             
-            Firebug.console##log  (Js.string $ "Schema: " ^ (Normform_base.sch_to_string schema));
-            Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep2));
-            Firebug.console##log  (Js.string  $ "Fdep: " ^(Normform_base.fdep_to_string fdep3));
+            Firebug.console##log  (Js.string $ "Schema: " ^ (sch_to_string schema));
+            Firebug.console##log  (Js.string  $ "Fdep: " ^ (fdep_to_string fdep2));
+            Firebug.console##log  (Js.string  $ "Fdep: " ^ (fdep_to_string fdep3));
             
-            output_fdep2##.value := (Js.string $ Normform.equiv_test schema fdep2 fdep3 ))
+            output_fdep2##.value := (Js.string $ equiv_test schema fdep2 fdep3 ))
         with _ -> error_fdep2##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
       );
       Js._true );

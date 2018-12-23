@@ -1,5 +1,5 @@
 {
-open Normform_pars     (* The type token is defined in parser.mli *)
+open Pars     (* The type token is defined in parser.mli *)
 exception Eof
 }
 let alpha = (['a' - 'z'] | ['A' - 'Z'] )+

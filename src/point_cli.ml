@@ -3,8 +3,8 @@
  *)
 
 open Printf
-open Point.Normform
-open Point.Normform_base
+open Point.Lib
+open Point.Base
 open Schema
 
 let rec robust f x = 

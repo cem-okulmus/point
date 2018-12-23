@@ -5,7 +5,7 @@
  *)
 
 open Printf
-open Normform_base
+open Base
 open Schema
 
 (* Compute the transitive closure *)
@@ -118,16 +118,15 @@ let check_for_prim_key schema fdep =
     let keys = get_key_cand schema fdep in 
     List.find_opt (fun (s,f) -> List.exists (fun (a,b) -> list_mem a keys) f)
 
-
 (* Parser functions *)
 
 let get_schema s :schema =
   let lexbuf = Lexing.from_string s in 
-  (Normform_pars.schema Normform_lex.token) lexbuf;;
+  (Pars.schema Lex.token) lexbuf;;
 
 let get_fdep s :functional_dep =
   let lexbuf = Lexing.from_string s in 
-  Normform_pars.fun_dep Normform_lex.token lexbuf;;
+  Pars.fun_dep Lex.token lexbuf;;
 
 (* Interactive procedures *)
 

@@ -1,23 +1,22 @@
-(ocamllex normform_lex) 
-(ocamlyacc normform_pars)
+(ocamllex lex) 
+(ocamlyacc pars)
 
 (library
   (name point)
-  (modules normform normform_base normform_lex normform_pars))
-
+  (modules lib base lex pars))
 
 (executables
-  (names normform_web normform_cli)
+  (names point_web point_cli)
   (libraries js_of_ocaml js_of_ocaml-tyxml point)
-  (modules normform_web normform_cli)
+  (modules point_web point_cli)
   (preprocess (pps js_of_ocaml-ppx  ) ) )
 
 (rule
-  (targets normform_web.js)
+  (targets point_web.js)
   (action
     (run %{bin:js_of_ocaml} --noruntime %{lib:js_of_ocaml-compiler:runtime.js}
-         --source-map %{dep:normform_web.bc} -o %{targets} --pretty)))
+         --source-map %{dep:point_web.bc} -o %{targets} --pretty)))
 
 (alias
   (name default)
-  (deps normform_web.js normform_cli.exe))
+  (deps point_web.js point_cli.exe))
