@@ -1,6 +1,6 @@
 (executables
   (names normform_web normform_cli)
-  (libraries js_of_ocaml-lwt js_of_ocaml-tyxml)
+  (libraries js_of_ocaml js_of_ocaml-tyxml)
   (preprocess (pps js_of_ocaml-ppx  ) ) )
 
 (rule
