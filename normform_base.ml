@@ -1,4 +1,12 @@
-
+(* 
+ *  The "base" implementation related to the two basic types:
+ *  one for schemas (just a string), and for functional dependencies
+ *  (a list of pairs of schemas). 
+ *
+ *  This split into two files (Normform.ml and Normform_base.ml) was 
+ *  needed to integrate the parser with the main library, as they need
+ *  to agree on the types, which therefore most be defined earlier
+ *)
 module Schema = Set.Make(Char)
 open Schema
 
@@ -37,14 +45,10 @@ let print_schema fmt t =
 let fdep_to_string (t:functional_dep) = 
     let buf = Buffer.create ((List.length t)*10) in
     Buffer.add_string buf "{ ";
-    List.map  (fun (a,b) -> String.concat "" ["(";sch_to_string a;" → ";sch_to_string b;")"] ) t 
+    List.map  (fun (a,b) -> "(" ^ sch_to_string a ^ " → " ^ sch_to_string b ^ ")" ) t 
     |> (Buffer.add_string buf $$ String.concat ", " ) ;
     Buffer.add_string buf " }";
     Buffer.contents buf 
-
-
-let schema_italics t = 
-    String.concat "" ["\x1B[3m";sch_to_string t;"\x1B[0m"]
 
 let print_fdep fmt t  =     
     Format.fprintf fmt "%s" $ fdep_to_string t  ;;
@@ -80,3 +84,5 @@ let list_mem a s =
 
 let rec robust f x = 
     try (f x ) with _ -> Printf.printf "\nWrong input. Try again:"; robust f x
+
+let specialstrig = "a special string"
