@@ -2,7 +2,7 @@
 Presentation Of Interactive Normalform Transformations
 
 Needs "js_of_ocaml" to build the web interface, as it does "dune" to easily build everything. 
-Both can be installed using opam: `opam install js_of_ocaml opam`. Opam is available in most Linux distros through the package manager, and there is a port for Windows and MacOS, [on their webpage](https://opam.ocaml.org/).
+Both can be installed using opam: `opam install js_of_ocaml dune`. Opam is available in most Linux distros through the package manager, and there is a port for Windows and MacOS, [on their webpage](https://opam.ocaml.org/).
 
 
 ## How to Build
