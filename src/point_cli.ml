@@ -49,9 +49,9 @@ let rec main () : unit =
    let options =  
         [("Synthesis algorithm (for 3NF)"          ,`Full   synthesis_procedure           ); 
          ("Decomposition algorithm (for BCNF)"     ,`Full   decomposition                 );
-         ("Produce random dependencies (Not 3NF )" ,`Schema (key_exercises neither)       );
-         ("Produce random dependencies (3NF only)" ,`Schema (key_exercises third_only)    );
-         ("Produce random dependencies (In BCNF)"  ,`Schema (key_exercises is_in_bcnf)    );
+         ("Produce random dependencies (Not 3NF )" ,`Schema (key_exercises neither  3 4)       );
+         ("Produce random dependencies (3NF only)" ,`Schema (key_exercises third_only 3 4)    );
+         ("Produce random dependencies (In BCNF)"  ,`Schema (key_exercises is_in_bcnf 3 4)    );
          ("Functional Dependency tools "           ,`Full   (fun a -> printf "%s" $$ latex_transformer a  )            )]
     in
 

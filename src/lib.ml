@@ -252,7 +252,7 @@ let third_only schema fdep =
     (is_in_3NF schema fdep ) && (not $ is_in_bcnf schema fdep)
 
 (* Try to generate useful fdeps for some predicate normform *)
-let key_exercises normform input () =
+let key_exercises normform num_keys length_keys input () =
     let fdep_generate schema : functional_dep = 
         let shuffle d =
             let nd = List.map (fun c -> (Random.bits (), c)) d in
@@ -268,22 +268,23 @@ let key_exercises normform input () =
         else repeat_until p f x  in 
     let predicate (fdeps:functional_dep ) = 
         (normform input fdeps) &&
-        (List.length $ get_key_cand input fdeps) <= 3 &&  
-        (List.for_all (fun a -> cardinal a < 4) $ get_key_cand input fdeps)  in
+        (List.length $ get_key_cand input fdeps) <= num_keys &&  
+        (List.for_all (fun a -> cardinal a < length_keys) $ get_key_cand input fdeps)  in
 
     if equal input empty then  
-    (   printf "Can't work on empty schema \n"; () )
+        sprintf "Can't work on empty schema \n" 
     else    
-    (  printf "\n\nSchema \t\t %s" (sch_to_string input);
-
-        printf "\n\nProducing random dependency: \n"; 
         let fdep = repeat_until predicate fdep_generate input in 
-
-        printf "\n\t\t%s,\nCanonical: \t%s"  
-               (fdep_to_string fdep ) (fdep_to_string $ canonical fdep );
-        printf "\nWith keys: \t{ %s }" $ 
-               String.concat ", " ( List.map sch_to_string $ get_key_cand input fdep)  
-    )
+        sprintf "\n\nSchema \t\t %s" (sch_to_string input)
+        ^
+        sprintf "\n\nProducing random dependency: \n"
+        ^
+        sprintf "\n\t\t%s\nCanonical: \t%s"  
+                       (fdep_to_string fdep ) (fdep_to_string $ canonical fdep ) 
+        ^
+        sprintf "\nWith keys: \t{ %s }"  
+                        (String.concat ", " ( List.map sch_to_string $ get_key_cand input fdep) )
+    
 
 (* TODO extend this to give out more information too *)
 let latex_transformer (s,f) () = 
