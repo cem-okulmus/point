@@ -25,4 +25,4 @@ This produces the needed .js file in the _build directory, this must be moved to
 #### To bulid the command line interface:
 `dune build src/point_cli.exe --profile release`
 
-This produces a .exe file (yes, it always uses the .exe ending for execuables) in the _build directory. Can be run directly in the shell `./normform_cli.exe`
+This produces a .exe file (yes, it always uses the .exe ending for execuables) in the _build directory. Can be run directly in the shell `./point_cli.exe`
