@@ -84,3 +84,9 @@ let list_mem a s =
 
 let rec robust f x = 
     try (f x ) with _ -> Printf.printf "\nWrong input. Try again:"; robust f x
+
+let subset_fdep l1 l2 = 
+    List.for_all (fun (a,b) -> List.exists (fun (c,d) -> fdep_compare (a,b) (c,d) == 0) l1) l2 
+
+let equal_fdep l1 l2 = 
+    (subset_fdep l1 l2) && (subset_fdep l2 l1)
