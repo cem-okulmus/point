@@ -174,10 +174,9 @@ let onload _ =
             textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_decomp";a_rows 5;a_cols 80]  (pcdata "" ); 
           ];    
           button ~a:[a_id "decomp_button"] [pcdata "Proceed"];
+          button ~a:[a_id "decomp_button2"; a_style "visibility: hidden"] [pcdata "Decompose"] ;
           button ~a:[a_id "decomp_button3"] [pcdata "Step back"] ;             
           button ~a:[a_id "decomp_button4"] [pcdata "Start again"] ;  
-          span ~a:[a_style "display: inline-block; width:2c h;"] [pcdata "  "] ;   
-          button ~a:[a_id "decomp_button2"; a_style "visibility: hidden"] [pcdata "Decompose"] ;
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;        
           strong  ~a:[a_id "old_fdep"; a_style "visibility: hidden"] [pcdata "Next dependency:  "; select ~a:[a_id "choice_dep"] []; ]; 
           h4  [
