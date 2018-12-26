@@ -1,27 +1,15 @@
 (* 
  * The web interface for POINT, built using Js_of_ocaml, and using 
- * one of the examples "wysiswyg" as a template (though most of the
+ * one of the examples "wysiwyg" as a template (though most of the
  * specific code for it has been removed or adapted )
  *
- * This is based on:
+ * This was originally based on:
  *   
  * Js_of_ocaml example
  * http://www.ocsigen.org/js_of_ocaml/
  * Copyright (C) 2010 Dmitry Kosarev
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * https://github.com/ocsigen/js_of_ocaml/tree/master/examples/wysiwyg
  *)
 open Point.Lib
 open Point.Base
@@ -31,12 +19,9 @@ let syn_count = ref 0
 let syn_schem = ref (get_schema "")
 let syn_fdep  = ref (get_fdep   "")
 
-let decomp_n   = ref 0
 let decomp_res = ref []
+let decomp_res_history  : ( (int*schema*functional_dep) list) list ref = ref []
 
-(* let decomp_n_prev   = ref 0
-   let decomp_res_prev = ref []
-*)
 let dec_schem = ref (get_schema "")
 let dec_fdep  = ref (get_fdep   "")
 
@@ -54,7 +39,10 @@ let visible a =
   a##.style##.visibility := Js.string "visible"
 
 let hidden a = 
-  a##.style##.visibility := Js.string "hidden"      
+  a##.style##.visibility := Js.string "hidden"
+
+let invoke_handler h = 
+  ignore $ Js.Unsafe.call h##.onclick ()  [|Js.Unsafe.inject (Dom.Event.make "click") |]
 
 let onload _ =
   let body = getElementbyId "point" in
@@ -186,8 +174,8 @@ let onload _ =
             textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_decomp";a_rows 5;a_cols 80]  (pcdata "" ); 
           ];    
           button ~a:[a_id "decomp_button"] [pcdata "Proceed"];
-          button ~a:[a_id "decomp_button3"; a_style "visibility: hidden"] [pcdata "Step back"] ;             
-          button ~a:[a_id "decomp_button4"; a_style "visibility: hidden"] [pcdata "Start again"] ;  
+          button ~a:[a_id "decomp_button3"] [pcdata "Step back"] ;             
+          button ~a:[a_id "decomp_button4"] [pcdata "Start again"] ;  
           span ~a:[a_style "display: inline-block; width:2c h;"] [pcdata "  "] ;   
           button ~a:[a_id "decomp_button2"; a_style "visibility: hidden"] [pcdata "Decompose"] ;
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;        
@@ -230,6 +218,8 @@ let onload _ =
   let input_fdep_decomp   = getElementbyId "input_fdep_decomp"    in
   let decomp_button       = getElementbyId "decomp_button"        in
   let decomp_button2      = getElementbyId "decomp_button2"       in
+  let decomp_button3      = getElementbyId "decomp_button3"       in
+  let decomp_button4      = getElementbyId "decomp_button4"       in
   let choice_dep          = getElementbyId "choice_dep"           in
   let output_decomp       = getElementbyId "output_decomp"        in
   let old_fdep            = getElementbyId "old_fdep"             in
@@ -346,7 +336,7 @@ let onload _ =
 
   synth_button2##.onclick := Dom_html.handler (fun _ -> (
         syn_count := -1;
-        ignore $ Js.Unsafe.call synth_button##.onclick ()  [|Js.Unsafe.inject (Dom.Event.make "click") |];
+        invoke_handler synth_button
       ); 
       Js._true;);    
 
@@ -355,7 +345,7 @@ let onload _ =
             syn_count := -1
           else
             syn_count := !syn_count -2);
-        ignore $ Js.Unsafe.call synth_button##.onclick ()  [|Js.Unsafe.inject (Dom.Event.make "click") |];
+        invoke_handler synth_button
       ); 
       Js._true;);  
 
@@ -374,14 +364,14 @@ let onload _ =
           if reset schema fdep then (
             Firebug.console##log  (Js.string "new schema or fdep different from old one");
             decomp_res := [(0,schema, fdep)];
-            decomp_n   := 1; 
+            decomp_res_history := [];
             hidden old_fdep;
             hidden decomp_button2;
           );
 
           Firebug.console##log  
-            (Js.string $ Printf.sprintf "\nLast Schema: %s\nLast Fdep: %s\nLast n: %n" 
-               (sch_to_string (!dec_schem)) (fdep_to_string !(dec_fdep)) (!decomp_n) );
+            (Js.string $ Printf.sprintf "\nLast Schema: %s\nLast Fdep: %s" 
+               (sch_to_string (!dec_schem)) (fdep_to_string !(dec_fdep)) );
           let out_string,violating = check_violating_deps !decomp_res in 
 
           choice_dep##.innerHTML := Js.string "";
@@ -419,16 +409,17 @@ let onload _ =
 
           if reset schema fdep then (
             Firebug.console##log  (Js.string "new schema or fdep different from old one");
-            decomp_res := [(0,schema, fdep)];
-            decomp_n   := 1
 
+            decomp_res := [(0,schema, fdep)];
+            decomp_res_history := []
           )else (
             let k = choice_dep##.selectedIndex in      
-            let out_string, n, res = decomposition_procedure k !decomp_n !decomp_res in 
+            let out_string, res = decomposition_procedure k !decomp_res in 
             output_decomp##.value := (Js.string out_string );
 
-            decomp_n := n;
+            decomp_res_history := !decomp_res::!decomp_res_history;
             decomp_res := res;
+
           );
           hidden  old_fdep;
           hidden  decomp_button2;       
@@ -437,6 +428,26 @@ let onload _ =
           error_decomp##.innerHTML := (Js.string "Couldn't parse your input. 🙁" ); (); 
       );      
       Js._true);
+
+  decomp_button3##.onclick := Dom_html.handler (fun _ -> (
+        if (!decomp_res_history != []) then (
+          decomp_res         := List.hd !decomp_res_history;
+          decomp_res_history := List.tl !decomp_res_history
+        );
+        invoke_handler decomp_button;
+      );
+      Js._true);
+
+  decomp_button4##.onclick := Dom_html.handler (fun _ -> (
+        if (!decomp_res_history != []) then (
+          decomp_res         := List.nth !decomp_res_history ((List.length !decomp_res_history)-1);
+          decomp_res_history := []
+        );
+        invoke_handler decomp_button;
+      );
+      Js._true);
+
+
   Js._false
 
 let _ = Dom_html.window##.onload := Dom_html.handler onload

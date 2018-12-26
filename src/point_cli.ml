@@ -43,7 +43,7 @@ let synthesis_cli input () : unit =
   printf "%s" $ synthesis_procedure input 3 ()
 
 let decomposition_cli (schema,fdep) () : unit = 
-  let rec decomp_terminal n res = 
+  let rec decomp_terminal res = 
     let out_string,violating = check_violating_deps res in 
     printf "%s" out_string;
     if (violating == []) then
@@ -51,10 +51,10 @@ let decomposition_cli (schema,fdep) () : unit =
     else (
       printf "Enter chosen dependency [0 ... %n]" ((List.length violating)-1);
       let k = robust read_int () in 
-      let out_string,n,res = decomposition_procedure k n res in 
+      let out_string,res = decomposition_procedure k res in 
       printf "%s" out_string;
-      decomp_terminal n res)  in 
-  decomp_terminal 1 [(0,schema, fdep)] 
+      decomp_terminal res)  in 
+  decomp_terminal [(0,schema, fdep)] 
 
 let latex_transformer_cli input () : unit = 
   printf "%s" $ latex_transformer input () 

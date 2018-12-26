@@ -153,11 +153,12 @@ let check_violating_deps res =
       "\nChoose how to proceed.",violating
     )
 
-(*   n :=  increasing counter, needed for res  *)
 (* res :=  { (n,s,f) | n .. number, s ..schema, f .. fun. dep. } *)
-let decomposition_procedure k n res : 'a * 'b * 'c=  
+let decomposition_procedure k res =  
+  let n =  (*   n :=  increasing counter, determined from res  *)
+    (+) 1 $ List.fold_left (fun tmp (k,_,_) -> max tmp k ) 0 res in
   match List.find_opt (fun (_,s,f) -> not $ is_in_bcnf s f) res with
-  | None                   ->    "",0,[] (* indicates that all is done *)  
+  | None                   ->    "",[] (* indicates that all is done *)  
   | Some (num,schema,fdep) -> (   
       let violating =  get_bcnf_violating_deps schema fdep in 
       let (s,f) = (List.nth violating k) in 
@@ -170,10 +171,8 @@ let decomposition_procedure k n res : 'a * 'b * 'c=
       sprintf "\n\tSchema_%n: %s \nFunctional Dep: %s \n" 
         (n+1) (sch_to_string s2 )  (fdep_to_string $  canonical f2),
 
-      (n+2),  List.filter ( (<>) (num,schema,fdep) ) (res@[((n),s1,canonical f1);((n+1),s2,canonical f2)] )
+      List.filter ( (<>) (num,schema,fdep) ) (res@[((n),s1,canonical f1);((n+1),s2,canonical f2)] )
     )
-
-
 
 let synthesis_procedure (s,f) step () : string=
   (*     let proceed () = 
