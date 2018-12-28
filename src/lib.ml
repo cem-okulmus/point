@@ -73,7 +73,6 @@ let is_in_3NF schema fdep =
   let subset_of_key a = for_all (fun c -> List.exists  (fun x -> mem c x) keys) a  in
   List.for_all (fun (a,b) -> is_superkey a || subset_of_key b) fdep
 
-
 let decompose (fdep:functional_dep ) = 
   List.flatten $ List.map (fun (a,b) -> List.map (fun c -> a, singleton c) $ to_list b) fdep 
 
@@ -250,6 +249,11 @@ let synthesis_procedure (s,f) step () : string=
     )
 
 (* Predicates for key_exercises  *)
+
+let all_violating schema fdep = 
+  let keys = get_key_cand schema fdep in
+  List.for_all (fun (a,_) -> not $ list_mem a keys ) fdep 
+
 let neither schema fdep = 
   not $ is_in_3NF schema fdep 
 
@@ -257,24 +261,22 @@ let third_only schema fdep =
   (is_in_3NF schema fdep ) && (not $ is_in_bcnf schema fdep)
 
 (* Try to generate useful fdeps for some predicate normform *)
-let key_exercises normform num_keys length_keys input () =
+let key_exercises normform size_subschema num_keys length_keys input () =
+  let subsets = (List.filter (fun a -> cardinal a = size_subschema) (powerset input)) in
   let fdep_generate schema : functional_dep = 
-    let shuffle d =
-      let nd = List.map (fun c -> (Random.bits (), c)) d in
-      let sond = List.sort Pervasives.compare nd in
-      List.map snd sond in    
-    let get_subschema schema = List.nth (shuffle $ List.filter (fun a -> cardinal a > 0) (powerset schema)) 0 in
+    let get_subschema schema = 
+      List.nth subsets (Random.int (List.length subsets)) in
     Random.self_init ();
     let num_deps = (Random.int 2 ) + 4 in
-    List.init num_deps (fun _ -> (get_subschema schema ,get_subschema schema))  in
+    List.init num_deps (fun _ -> (get_subschema schema ,get_subschema schema))   in
   let rec repeat_until p f x = 
     let temp = f x in 
     if p temp then temp
     else repeat_until p f x  in 
   let predicate (fdeps:functional_dep ) = 
     (normform input fdeps) &&
-    (List.length $ get_key_cand input fdeps) <= num_keys &&  
-    (List.for_all (fun a -> cardinal a < length_keys) $ get_key_cand input fdeps)  in
+    (List.length $ get_key_cand input fdeps) = num_keys &&  
+    (List.for_all (fun a -> cardinal a = length_keys) $ get_key_cand input fdeps)  in
 
   if equal input empty then  
     sprintf "Can't work on empty schema 🙁\n" 
@@ -304,8 +306,9 @@ let latex_transformer (s,f) () =
   (sprintf "               \t %s \n\n" (fdep_to_latex   f))              ^
   (sprintf "Canonical Cover\t %s \n"   (fdep_to_string $ canonical  f))  ^
   (sprintf "               \t %s \n\n" (fdep_to_latex  $ canonical  f )) ^
-  (sprintf "Keys\t\t { %s } \n\n" 
-   $$ String.concat ", " $ List.map sch_to_string (get_key_cand s f))
+  let key_string = String.concat ", " $ List.map sch_to_string (get_key_cand s f)in
+  (sprintf "Keys\t\t { %s }\n\t\t \\ltdn{ %s } \n\n" 
+     key_string key_string)
 
 let equiv_test fdep1 fdep2 = 
   try 

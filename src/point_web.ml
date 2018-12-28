@@ -122,17 +122,22 @@ let onload _ =
           strong [pcdata "Normalform  "]; 
           select ~a:[a_id "choice_nf"] [
             option ~a:[a_value "neither"] (pcdata "Not in 3NF");          
+            (* option ~a:[a_value "all_vio"] (pcdata "Each violating BCNF");    *) 
             option ~a:[a_value "3NF only"] (pcdata "In 3NF, but not BCNF");
             option ~a:[a_value "BCNF"] (pcdata "In BCNF")
           ]; 
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
 
-          strong [pcdata "# of keys (upper bound)  "]; 
+          strong [pcdata "Card. of subschema "]; 
+          input ~a:[a_value "3"; a_id "choice_sschem"; a_size 1;] (); 
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+
+          strong [pcdata "# of keys "]; 
           input ~a:[a_value "3"; a_id "choice_keys"; a_size 1;] (); 
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
 
-          strong [pcdata "Cardinality of keys (upper bound) "]; 
-          input ~a:[a_value "4"; a_id "choice_card"; a_size 1;] (); 
+          strong [pcdata "Cardinality of keys "]; 
+          input ~a:[a_value "3"; a_id "choice_card"; a_size 1;] (); 
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
 
           span ~a:[a_id "error_gen"; a_style "color: red;"] [pcdata ""] ;  br ();   br (); 
@@ -203,6 +208,7 @@ let onload _ =
   let choice_nf           = getElementbyId "choice_nf"            in
   let choice_keys         = getElementbyId "choice_keys"          in
   let choice_card         = getElementbyId "choice_card"          in
+  let choice_sschem       = getElementbyId "choice_sschem"        in
   let output_gen          = getElementbyId "output_gen"           in
   let input_schema_gen    = getElementbyId "input_schema_gen"     in
   let input_schema_synth  = getElementbyId "input_schema_synth"   in
@@ -212,7 +218,7 @@ let onload _ =
   let synth_button2       = getElementbyId "synth_button2"        in
   let synth_button3       = getElementbyId "synth_button3"        in
   let output_synth        = getElementbyId "output_synth"         in
-  let input_schema_decomp = getElementbyId "input_schema_decomp"  in
+  let input_schema_decomp = getElementbyId "input_schema_decomp"  in 
   let error_decomp        = getElementbyId "error_decomp"         in
   let input_fdep_decomp   = getElementbyId "input_fdep_decomp"    in
   let decomp_button       = getElementbyId "decomp_button"        in
@@ -288,6 +294,7 @@ let onload _ =
           Firebug.console##log  choice_nf##.value;
           let choice_nf  = 
             match Js.to_string choice_nf##.value with    
+            | "all_vio"  -> all_violating  
             | "neither"  -> neither  
             | "3NF only" -> third_only
             | "BCNF"     -> is_in_bcnf
@@ -297,11 +304,13 @@ let onload _ =
           let choice_keys  = int_of_string $ Js.to_string choice_keys##.value in 
           Firebug.console##log  choice_card##.value;
           let choice_card  = int_of_string $ Js.to_string choice_card##.value in 
+          Firebug.console##log  choice_sschem##.value;
+          let choice_sschem  = int_of_string $ Js.to_string choice_sschem##.value in 
 
           Firebug.console##log  input_schema_gen##.value ;
           let schema = get_schema $ Js.to_string input_schema_gen##.value in 
 
-          output_gen##.value := (Js.string $ key_exercises choice_nf choice_keys choice_card schema ()  )
+          output_gen##.value := (Js.string $ key_exercises choice_nf choice_sschem choice_keys choice_card schema ()  )
         ) with _ ->
           error_gen##.innerHTML := (Js.string "Couldn't parse your input. 🙁"); (); 
       );
