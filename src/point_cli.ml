@@ -34,13 +34,14 @@ let synthesis_cli input () : unit =
   let proceed () : unit = 
     printf "Press enter to proceed... \n";
     ignore $ read_line () in 
-  printf "%s" $ synthesis_procedure input 0 ();
+  let result = synthesis_procedure input () in
+  printf "%s" $ List.nth result 0;
   proceed ();
-  printf "%s" $ synthesis_procedure input 1 ();
+  printf "%s" $ List.nth result 1;
   proceed ();
-  printf "%s" $ synthesis_procedure input 2 ();
+  printf "%s" $ List.nth result 2;
   proceed ();
-  printf "%s" $ synthesis_procedure input 3 ()
+  printf "%s" $ List.nth result 3
 
 let decomposition_cli (schema,fdep) () : unit = 
   let rec decomp_terminal res = 
