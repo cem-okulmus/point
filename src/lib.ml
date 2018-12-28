@@ -130,10 +130,9 @@ let get_fdep s :functional_dep =
 
 (* Interactive procedures *)
 
-
 let check_violating_deps res = 
   let current = 
-    sprintf "Current schemas: \n\n" ^
+    "Current schemas: \n\n" ^
     (List.fold_left (fun old (num,s,f) -> 
          old ^ sprintf "Schema_%n:\t%s\nFunctional Dep:\t%s \n\n" 
            num (sch_to_string s) (fdep_to_string  f )) "" res) in
@@ -173,12 +172,13 @@ let decomposition_procedure k res =
       List.filter ( (<>) (num,schema,fdep) ) (res@[((n),s1,canonical f1);((n+1),s2,canonical f2)] )
     )
 
-let synthesis_procedure (s,f) step () : string=
+let synthesis_procedure (s,f)  () : string list =
   (*     let proceed () = 
           printf "Press enter to proceed ...:";
           ignore $ read_line ()   in *)
   if (is_in_3NF s f) then 
-    "Already in 3rd normal form, nothing to be done here. 😀\n"
+    let to_tuple a = [a;a;a;a](* aaaaah *) in 
+    to_tuple "Already in 3rd normal form, nothing to be done here. 😀\n"
   else 
     (
       let left = leftred f in 
@@ -192,60 +192,76 @@ let synthesis_procedure (s,f) step () : string=
         | Some (s,f) -> schemas
         | None       -> 
           let key = List.nth keys 0; (* just pick the first one, must always exist *) in 
-          let key_dep = fitting_deps key (closure s f) in
+          let key_dep = [] in (* not hard to see why this must be empty*)
           (key,key_dep)::schemas  in
 
       let final_schemas = 
         List.filter (fun (s,f) -> 
-            not $ List.exists (fun (s2,f2) -> subset s2 s && not $ equal s2 s) key_schemas) key_schemas in 
-      match step with 
-      | 0  ->   
-        sprintf "\t \t 1. Calculating canonical form of schema:\n" ^
-        sprintf "\t \t ========================================\n" ^
+            not $ List.exists (fun (s2,f2) -> subset s s2 && not $ equal s2 s) key_schemas) key_schemas in 
+      let redundant_schemas = 
+        let final_schemas = List.map fst final_schemas in 
+        let key_schemas = List.map fst key_schemas in 
+        let pick_superset s = 
+          List.nth ( List.filter (fun s2 -> subset s s2) final_schemas ) 0 in
+        List.filter (fun a -> not $ list_mem a final_schemas) key_schemas 
+        |> List.map (fun a -> a, pick_superset a ) in 
 
-        sprintf "Left-reduction: \n" ^
+      let first = 
+
+        "\t \t 1. Calculating canonical form of schema:\n" ^
+        "\t \t ========================================\n" ^
+
+        "Left-reduction: \n" ^
         sprintf "\t\t%s\n" (fdep_to_string left) ^
         sprintf "(with decompose)%s" (fdep_to_string $$ leftred $ decompose f) ^
 
-        sprintf "\n\nRight-reduction: \n" ^
+        "\n\nRight-reduction: \n" ^
         sprintf "\t\t%s\n" (fdep_to_string right) ^ 
         sprintf "(with decompose)%s" (fdep_to_string $$ rightred $$ leftred $ decompose f) ^
 
-        sprintf "\n\nCombination step: \n\n" ^
-        sprintf "%s\n\n" (fdep_to_string comb)
-      | 1  ->
-        sprintf "\t \t 2. Creating new schemas based on canonical form:\n" ^
-        sprintf "\t \t ================================================\n" ^
+        "\n\nCombination step: \n\n" ^
+        sprintf "%s\n\n" (fdep_to_string comb) in
 
-        (List.fold_left (fun old (s,f) -> 
+      let second = 
+        "\t \t 2. Creating new schemas based on canonical form:\n" ^
+        "\t \t ================================================\n" ^
+
+        (List.fold_left (fun old (s,f) ->  
              old ^
-             sprintf "\tSchema: %s \n \tFunctional dependencies: %s \n\n"
-               (sch_to_string s) (fdep_to_string $ canonical f) ) "" schemas)
-      | 2  ->
-        sprintf "\t \t 3. Checking if a key candidate present in schemas:\n" ^
-        sprintf "\t \t ==================================================\n" ^
+             sprintf "\tSchema: %s\t with keys %s \n \tFunctional dependencies: %s \n\n"
+               (sch_to_string s) (slist_to_string $ get_key_cand s f) (fdep_to_string $ canonical f) ) "" schemas) in
 
-        sprintf "Key candidates are: { %s }\n\n" 
-          (String.concat "," (List.map sch_to_string keys)) ^
+      let third = 
+        "\t \t 3. Checking if a key candidate present in schemas:\n" ^
+        "\t \t ==================================================\n" ^
+
+        sprintf "Key candidates are: { %s }\n\n" (slist_to_string keys) ^
 
         (   match check_for_prim_key s f schemas with
             | None  ->    
-              sprintf "No key candidate covered, proceeding to make additional schema\n\n" ^
+              "No key candidate covered, proceeding to make additional schema\n\n" ^
               let key,key_dep = List.nth key_schemas 0 in
-              sprintf "\tSchema: %s \n \tFunctional dependencies: %s \n\n" 
-                (sch_to_string key) (fdep_to_string key_dep )
+              sprintf "\tSchema: %s\t with keys %s \n \tFunctional dependencies: %s \n\n" 
+                (sch_to_string key)(slist_to_string $ get_key_cand key key_dep) (fdep_to_string key_dep )
             | Some (s,f) ->
               sprintf "Schema %s already contains a key candidate.\n\n"(sch_to_string s) 
-        )
-      | _   ->
-        sprintf "\t \t 4. Removing all schemas which are subsets of others:\n" ^
-        sprintf "\t \t ====================================================\n" ^
+        ) in
 
+      let fourth = 
+        "\t \t 4. Removing all schemas which are subsets of others:\n" ^
+        "\t \t ====================================================\n" ^
+
+        "\nRemoved following schemas:\n" ^
+
+        (List.fold_left (fun old (s,s2) -> 
+             old ^ sprintf "\tSchema: %s ⊆ %s \n" (sch_to_string s) (sch_to_string s2) )  "" redundant_schemas) ^
+
+        "\n Final schemas:    \n" ^
         (List.fold_left (fun old (s,f) -> 
-             old ^ sprintf "\tSchema: %s \n \tFunctional dependencies: %s \n\n"
-               (sch_to_string s) (fdep_to_string $ canonical f) ) "" final_schemas ) ^
-
-        sprintf "Schemas are all in 3rd Normalform. \n\n"
+             old ^ sprintf "\tSchema: %s\t with keys %s \n \tFunctional dependencies: %s \n\n"
+               (sch_to_string s)  (slist_to_string $ get_key_cand s f) (fdep_to_string $ canonical f) ) "" final_schemas ) ^
+        "Schemas are all in 3rd Normalform. \n\n" in
+      [first;second;third;fourth]
     )
 
 (* Predicates for key_exercises  *)
@@ -279,18 +295,17 @@ let key_exercises normform size_subschema num_keys length_keys input () =
     (List.for_all (fun a -> cardinal a = length_keys) $ get_key_cand input fdeps)  in
 
   if equal input empty then  
-    sprintf "Can't work on empty schema 🙁\n" 
+    "Can't work on empty schema 🙁\n" 
   else    
     let fdep = repeat_until predicate fdep_generate input in 
     sprintf "\n\nSchema \t\t %s" (sch_to_string input)
     ^
-    sprintf "\n\nProducing random dependency: \n"
+    "\n\nProducing random dependency: \n"
     ^
     sprintf "\n\t\t%s\nCanonical: \t%s"  
       (fdep_to_string fdep ) (fdep_to_string $ canonical fdep ) 
     ^
-    sprintf "\nWith keys: \t{ %s }"  
-      (String.concat ", " ( List.map sch_to_string $ get_key_cand input fdep) )
+    sprintf "\nWith keys: \t{ %s }"  (slist_to_string $  get_key_cand input fdep)
 
 
 (* TODO extend this to give out more information too *)
@@ -306,9 +321,13 @@ let latex_transformer (s,f) () =
   (sprintf "               \t %s \n\n" (fdep_to_latex   f))              ^
   (sprintf "Canonical Cover\t %s \n"   (fdep_to_string $ canonical  f))  ^
   (sprintf "               \t %s \n\n" (fdep_to_latex  $ canonical  f )) ^
-  let key_string = String.concat ", " $ List.map sch_to_string (get_key_cand s f)in
-  (sprintf "Keys\t\t { %s }\n\t\t \\ltdn{ %s } \n\n" 
-     key_string key_string)
+  (sprintf "Keys\t\t { %s }\n\n" (slist_to_string $ get_key_cand s f ) ) ^
+  if (is_in_bcnf s f) then 
+    "Is in Boyce-Codd Normalform."
+  else if (is_in_3NF s f) then     
+    "Is in 3rd Normal Form, but not BCNF."
+  else
+    "Neither in 3NF, nor BCNF."
 
 let equiv_test fdep1 fdep2 = 
   try 

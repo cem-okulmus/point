@@ -24,6 +24,8 @@ rule token = parse
   | '('                      { LPAREN         }
   | ')'                      { RPAREN         }
   | '{'                      { LBRACE         }
+  | "\\"                      { SLASH          }
+  | "\\fd"                   { FD_LITERAL     }
   | '}'                      { RBRACE         }
   | ','                      { COMMA          }
   | '+'                      { PLUS           }

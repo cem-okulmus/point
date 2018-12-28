@@ -18,6 +18,7 @@ open Js_of_ocaml
 let syn_count = ref 0 
 let syn_schem = ref (get_schema "")
 let syn_fdep  = ref (get_fdep   "")
+let syn_result = ref [""]
 
 let decomp_res = ref []
 let decomp_res_history  : ( (int*schema*functional_dep) list) list ref = ref []
@@ -87,12 +88,12 @@ let onload _ =
           span ~a:[a_id "error_fdep"; a_style "color: red;"] [pcdata ""] ;  br ();
           h4 ~a:[a_style "display: inline-block;"] [
             pcdata "Functional Dependencies"; br ();
-            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep";a_rows 10;a_cols 60]  (pcdata "" ); 
+            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep";a_rows 13;a_cols 60]  (pcdata "" ); 
           ]; 
           span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
           h4 ~a:[a_style "display: inline-block;"] [
             pcdata "Output"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 10;a_cols 80;a_readonly ()] (pcdata "" )
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 13;a_cols 80;a_readonly ()] (pcdata "" )
           ]; 
 
           h3 [pcdata "Testing equivalence"];     
@@ -322,8 +323,9 @@ let onload _ =
         let change_counter s_new f_new =  
           if ((Schema.equal (!syn_schem) s_new) && equal_fdep (!syn_fdep) f_new) then 
             incr syn_count
-          else 
-            syn_count := 0 in
+          else  
+            (syn_result := synthesis_procedure (s_new,f_new) ();
+             syn_count := 0 ) in
         try (  
           Firebug.console##log  input_schema_synth##.value;
           let schema = get_schema $ Js.to_string   input_schema_synth##.value in
@@ -331,10 +333,12 @@ let onload _ =
           let fdep = get_fdep $ Js.to_string   input_fdep_synth##.value in   
 
           change_counter schema fdep;
+          syn_count := max 0 (min 3 !syn_count);
           Firebug.console##log  (Js.string $ Printf.sprintf "\nLast Schema: %s\nLast Fdep: %s\nCounter: %n" 
                                    (sch_to_string (!syn_schem)) (fdep_to_string !(syn_fdep)) (!syn_count) );
 
-          output_synth##.value := (Js.string $ (synthesis_procedure (schema,fdep) (!syn_count)   ()   ) );
+          output_synth##.value := Js.string $ List.nth !syn_result !syn_count;
+
           syn_fdep  := fdep;
           syn_schem := schema;        
         ) with error -> 
@@ -454,7 +458,6 @@ let onload _ =
         invoke_handler decomp_button;
       );
       Js._true);
-
 
   Js._false
 
