@@ -61,133 +61,133 @@ let onload _ =
   (** The main body of the point web page, using TyXML to easily represent the structure  *)
   let html_div = Tyxml_js.To_dom.of_body Tyxml_js.Html.( 
       body [ 
-        h1 [pcdata "Presentation Of Interactive Normalform Transformations"];
-        p [pcdata "Choose which tool you want to use (click the tab)"];
+        h1 [txt "Presentation Of Interactive Normalform Transformations"];
+        p [txt "Choose which tool you want to use (click the tab)"];
         div ~a:[a_class ["tab"];] [
           button ~a:[a_class ["tablink"]; a_onclick (fun e -> tab_function e "FDtool";true)] [
-            pcdata "Functional Dependency tools "
+            txt "Functional Dependency tools "
           ];    
           button ~a:[a_class ["tablink"]; a_onclick (fun e -> tab_function e "fd_gen";true)] [
-            pcdata "Functional Dependency generation"
+            txt "Functional Dependency generation"
           ];
           button ~a:[a_class ["tablink"]; a_onclick (fun e -> tab_function e "synth";true)] [
-            pcdata "Synthesis algorithm"
+            txt "Synthesis algorithm"
           ];          
           button ~a:[a_class ["tablink"]; a_onclick (fun e -> tab_function e "decomp";true)] [
-            pcdata "Decomposition algorithm"
+            txt "Decomposition algorithm"
           ]      
 
         ];
 
         div ~a:[a_class ["tabcontent"]; a_id "FDtool"] [
-          p [pcdata "Generate keys, canonical forms, and LaTeX export for given FD"];
+          p [txt "Generate keys, canonical forms, and LaTeX export for given FD"];
 
-          strong [pcdata "Schema  "]; input ~a:[a_id "input_schema"] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          strong [txt "Schema  "]; input ~a:[a_id "input_schema"] (); 
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          span ~a:[a_id "error_fdep"; a_style "color: red;"] [pcdata ""] ;  br ();
+          span ~a:[a_id "error_fdep"; a_style "color: red;"] [txt ""] ;  br ();
           h4 ~a:[a_style "display: inline-block;"] [
-            pcdata "Functional Dependencies"; br ();
-            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep";a_rows 13;a_cols 60]  (pcdata "" ); 
+            txt "Functional Dependencies"; br ();
+            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep";a_rows 13;a_cols 60]  (txt "" ); 
           ]; 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
           h4 ~a:[a_style "display: inline-block;"] [
-            pcdata "Output"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 13;a_cols 80;a_readonly ()] (pcdata "" )
+            txt "Output"; br ();
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_fdep";a_rows 13;a_cols 80;a_readonly ()] (txt "" )
           ]; 
 
-          h3 [pcdata "Testing equivalence"];     
-          span ~a:[a_id "error_fdep2"; a_style "color: red;"] [pcdata ""] ; br ();
+          h3 [txt "Testing equivalence"];     
+          span ~a:[a_id "error_fdep2"; a_style "color: red;"] [txt ""] ; br ();
           h4 ~a:[a_style "display: inline-block;"] [
-            pcdata "First Dependency"; br ();
-            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep2";a_rows 5;a_cols 70]  (pcdata "" ); 
+            txt "First Dependency"; br ();
+            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep2";a_rows 5;a_cols 70]  (txt "" ); 
           ]; 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
           h4 ~a:[a_style "display: inline-block;"] [
-            pcdata "Second Dependency"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "input_fdep3";a_rows 5;a_cols 70] (pcdata "" )
+            txt "Second Dependency"; br ();
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "input_fdep3";a_rows 5;a_cols 70] (txt "" )
           ]; 
           br ();        
-          button ~a:[a_id "equiv_button"] [pcdata "Check equivalence"] ;
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
-          strong [pcdata "Result:  "]; input ~a:[a_id "output_fdep2"; a_size 100; a_readonly()] (); 
+          button ~a:[a_id "equiv_button"] [txt "Check equivalence"] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
+          strong [txt "Result:  "]; input ~a:[a_id "output_fdep2"; a_size 100; a_readonly()] (); 
         ]; 
 
         div ~a:[a_class ["tabcontent"]; a_id "fd_gen"] [ 
-          p [pcdata "Produces a set of random Functional Dependencies, based on a number of chosen predicates"];
+          p [txt "Produces a set of random Functional Dependencies, based on a number of chosen predicates"];
           br ();
 
-          strong [pcdata "Schema  "]; input ~a:[a_size 6; a_id "input_schema_gen"] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          strong [txt "Schema  "]; input ~a:[a_size 6; a_id "input_schema_gen"] (); 
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          strong [pcdata "Normalform  "]; 
+          strong [txt "Normalform  "]; 
           select ~a:[a_id "choice_nf"] [
-            option ~a:[a_value "neither"] (pcdata "Not in 3NF");          
-            (* option ~a:[a_value "all_vio"] (pcdata "Each violating BCNF");    *) 
-            option ~a:[a_value "3NF only"] (pcdata "In 3NF, but not BCNF");
-            option ~a:[a_value "BCNF"] (pcdata "In BCNF")
+            option ~a:[a_value "neither"] (txt "Not in 3NF");          
+            (* option ~a:[a_value "all_vio"] (txt "Each violating BCNF");    *) 
+            option ~a:[a_value "3NF only"] (txt "In 3NF, but not BCNF");
+            option ~a:[a_value "BCNF"] (txt "In BCNF")
           ]; 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          strong [pcdata "Card. of subschema "]; 
+          strong [txt "Card. of subschema "]; 
           input ~a:[a_value "3"; a_id "choice_sschem"; a_size 1;] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          strong [pcdata "# of keys "]; 
+          strong [txt "# of keys "]; 
           input ~a:[a_value "3"; a_id "choice_keys"; a_size 1;] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          strong [pcdata "Cardinality of keys "]; 
+          strong [txt "Cardinality of keys "]; 
           input ~a:[a_value "3"; a_id "choice_card"; a_size 1;] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
 
-          span ~a:[a_id "error_gen"; a_style "color: red;"] [pcdata ""] ;  br ();   br (); 
-          button ~a:[a_id "gen_button"] [pcdata "Generate dependency"] ;
+          span ~a:[a_id "error_gen"; a_style "color: red;"] [txt ""] ;  br ();   br (); 
+          button ~a:[a_id "gen_button"] [txt "Generate dependency"] ;
           h4 [
-            pcdata "Output"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_gen";a_rows 15;a_cols 140;a_readonly ()] (pcdata "" )
+            txt "Output"; br ();
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_gen";a_rows 15;a_cols 140;a_readonly ()] (txt "" )
           ];
 
         ];
 
         div ~a:[a_class ["tabcontent"]; a_id "synth"] [
-          p [pcdata "Presents the Synthesis algorithm to achieve 3NF, in a step-wise fashion"];
+          p [txt "Presents the Synthesis algorithm to achieve 3NF, in a step-wise fashion"];
 
-          strong [pcdata "Schema  "]; input ~a:[a_id "input_schema_synth"] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
-          span ~a:[a_id "error_synth"; a_style "color: red;"] [pcdata ""] ;  br ();
+          strong [txt "Schema  "]; input ~a:[a_id "input_schema_synth"] (); 
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
+          span ~a:[a_id "error_synth"; a_style "color: red;"] [txt ""] ;  br ();
           h4 [
-            pcdata "Functional Dependency"; br ();
-            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_synth";a_rows 5;a_cols 80]  (pcdata "" ); 
+            txt "Functional Dependency"; br ();
+            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_synth";a_rows 5;a_cols 80]  (txt "" ); 
           ];
-          button ~a:[a_id "synth_button"] [pcdata "Proceed"] ;          
-          button ~a:[a_id "synth_button3"] [pcdata "Step back"] ;  
-          button ~a:[a_id "synth_button2"] [pcdata "Start again"] ;  
+          button ~a:[a_id "synth_button"] [txt "Proceed"] ;          
+          button ~a:[a_id "synth_button3"] [txt "Step back"] ;  
+          button ~a:[a_id "synth_button2"] [txt "Start again"] ;  
           h4 [
-            pcdata "Output"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_synth";a_rows 20;a_cols 80;a_readonly ()] (pcdata "" )
+            txt "Output"; br ();
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_synth";a_rows 20;a_cols 80;a_readonly ()] (txt "" )
           ];
         ];
 
         div ~a:[a_class ["tabcontent"]; a_id "decomp" ] [
-          p [pcdata "Interactively presents the Decomposition algorithm to achieve BCNF"];
+          p [txt "Interactively presents the Decomposition algorithm to achieve BCNF"];
 
-          strong [pcdata "Schema  "]; input ~a:[a_id "input_schema_decomp"] (); 
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;
-          span ~a:[a_id "error_decomp"; a_style "color: red;"] [pcdata ""] ;  br ();
+          strong [txt "Schema  "]; input ~a:[a_id "input_schema_decomp"] (); 
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;
+          span ~a:[a_id "error_decomp"; a_style "color: red;"] [txt ""] ;  br ();
           h4 [
-            pcdata "Functional Dependency"; br ();
-            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_decomp";a_rows 5;a_cols 80]  (pcdata "" ); 
+            txt "Functional Dependency"; br ();
+            textarea  ~a:[a_style "font-size: 13pt"; a_id "input_fdep_decomp";a_rows 5;a_cols 80]  (txt "" ); 
           ];    
-          button ~a:[a_id "decomp_button"] [pcdata "Proceed"];
-          button ~a:[a_id "decomp_button2"; a_style "visibility: hidden"] [pcdata "Decompose"] ;
-          button ~a:[a_id "decomp_button3"] [pcdata "Step back"] ;             
-          button ~a:[a_id "decomp_button4"] [pcdata "Start again"] ;  
-          span ~a:[a_style "display: inline-block; width: 5ch;"] [pcdata "  "] ;        
-          strong  ~a:[a_id "old_fdep"; a_style "visibility: hidden"] [pcdata "Next dependency:  "; select ~a:[a_id "choice_dep"] []; ]; 
+          button ~a:[a_id "decomp_button"] [txt "Proceed"];
+          button ~a:[a_id "decomp_button2"; a_style "visibility: hidden"] [txt "Decompose"] ;
+          button ~a:[a_id "decomp_button3"] [txt "Step back"] ;             
+          button ~a:[a_id "decomp_button4"] [txt "Start again"] ;  
+          span ~a:[a_style "display: inline-block; width: 5ch;"] [txt "  "] ;        
+          strong  ~a:[a_id "old_fdep"; a_style "visibility: hidden"] [txt "Next dependency:  "; select ~a:[a_id "choice_dep"] []; ]; 
           h4  [
-            pcdata "Output"; br ();
-            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_decomp";a_rows 20;a_cols 80;a_readonly ()] (pcdata "" )
+            txt "Output"; br ();
+            textarea ~a:[ a_style "font-size: 13pt"; a_id "output_decomp";a_rows 20;a_cols 80;a_readonly ()] (txt "" )
           ];
         ]
       ]  ) in
@@ -230,38 +230,47 @@ let onload _ =
   let output_decomp       = getElementbyId "output_decomp"        in
   let old_fdep            = getElementbyId "old_fdep"             in
 
+  let update_schemas s : unit = 
+    input_schema##.value      := s;
+    input_schema_gen##.value    := s;
+    input_schema_decomp##.value := s;
+    input_schema_synth##.value  := s in
+
+  let smart_schema input fdep = 
+    let implicit_schema  = 
+      List.fold_left (fun c (a,b)-> c @@ b @@ a) Schema.empty fdep  in 
+    let read_value = get_schema $ Js.to_string input##.value in
+    if(Schema.subset read_value implicit_schema  ) then     
+      ( update_schemas $$ Js.string $ sch_to_string implicit_schema;
+        implicit_schema ) 
+    else if not $ Schema.subset implicit_schema read_value then 
+      (update_schemas $$ Js.string $ sch_to_string (Schema.union read_value implicit_schema);
+       (Schema.union read_value implicit_schema)     )
+    else read_value in
 
   (* Install the needed handlers *)
 
   input_schema_synth##.oninput := Dom_html.handler (fun _ -> 
-      input_schema_gen##.value :=  input_schema_synth##.value;
-      input_schema##.value := input_schema_synth##.value;
-      input_schema_decomp##.value := input_schema_synth##.value;
+      update_schemas input_schema_synth##.value;
       Js._true);  
 
   input_schema_decomp##.oninput := Dom_html.handler (fun _ -> 
-      input_schema_gen##.value :=  input_schema_decomp##.value;
-      input_schema##.value := input_schema_decomp##.value;
-      input_schema_synth##.value := input_schema_decomp##.value;
+      update_schemas input_schema_decomp##.value;
       Js._true);
 
   input_schema_gen##.oninput := Dom_html.handler (fun _ -> 
-      input_schema_synth##.value :=  input_schema_gen##.value;
-      input_schema_decomp##.value :=  input_schema_gen##.value;
-      input_schema##.value := input_schema_gen##.value;
+      update_schemas input_schema_gen##.value;
       Js._true);
 
   input_fdep##.oninput := input_schema##.oninput := Dom_html.handler (fun _ -> (
-        input_schema_synth##.value :=  input_schema##.value;   
-        input_schema_decomp##.value :=  input_schema##.value;
-        input_schema_gen##.value := input_schema##.value;
+        update_schemas input_schema##.value;
         error_fdep##.innerHTML := (Js.string "");
         try (  
           Firebug.console##log  input_fdep##.value;
           let fdep   = get_fdep $ Js.to_string input_fdep##.value in 
 
           Firebug.console##log  input_schema##.value ;
-          let schema = get_schema $ Js.to_string input_schema##.value in 
+          let schema =  smart_schema input_schema fdep  in
 
           Firebug.console##log  (Js.string $ "Schema: " ^ (sch_to_string schema));
           Firebug.console##log  (Js.string  $ "Fdep: " ^(fdep_to_string fdep));
@@ -295,7 +304,7 @@ let onload _ =
           Firebug.console##log  choice_nf##.value;
           let choice_nf  = 
             match Js.to_string choice_nf##.value with    
-            | "all_vio"  -> all_violating  
+            | "all_vio"  -> predicate all_violating  
             | "neither"  -> neither  
             | "3NF only" -> third_only
             | "BCNF"     -> is_in_bcnf
@@ -309,7 +318,7 @@ let onload _ =
           let choice_sschem  = int_of_string $ Js.to_string choice_sschem##.value in 
 
           Firebug.console##log  input_schema_gen##.value ;
-          let schema = get_schema $ Js.to_string input_schema_gen##.value in 
+          let schema = get_schema $ Js.to_string input_schema_gen##.value in           
 
           output_gen##.value := (Js.string $ key_exercises choice_nf choice_sschem choice_keys choice_card schema ()  )
         ) with _ ->
@@ -327,10 +336,11 @@ let onload _ =
             (syn_result := synthesis_procedure (s_new,f_new) ();
              syn_count := 0 ) in
         try (  
-          Firebug.console##log  input_schema_synth##.value;
-          let schema = get_schema $ Js.to_string   input_schema_synth##.value in
           Firebug.console##log  input_fdep_synth##.value;
-          let fdep = get_fdep $ Js.to_string   input_fdep_synth##.value in   
+          let fdep = get_fdep $ Js.to_string   input_fdep_synth##.value in
+
+          Firebug.console##log  input_schema_synth##.value;
+          let schema = smart_schema input_schema_synth fdep in  
 
           change_counter schema fdep;
           syn_count := max 0 (min 3 !syn_count);
@@ -368,10 +378,11 @@ let onload _ =
 
         error_decomp##.innerHTML := (Js.string "");
         try (  
-          Firebug.console##log  input_schema_decomp##.value;
-          let schema = get_schema $ Js.to_string   input_schema_decomp##.value in
           Firebug.console##log  input_fdep_decomp##.value;
-          let fdep = get_fdep $ Js.to_string   input_fdep_decomp##.value in   
+          let fdep = get_fdep $ Js.to_string   input_fdep_decomp##.value in
+
+          Firebug.console##log  input_schema_synth##.value;
+          let schema = smart_schema input_schema_decomp  fdep in  
 
           if reset schema fdep then (
             Firebug.console##log  (Js.string "new schema or fdep different from old one");
@@ -392,7 +403,7 @@ let onload _ =
               opt##.innerHTML := 
                 (Js.string $ Printf.sprintf "(%s → %s)\n" (sch_to_string a) (sch_to_string b) );
               Dom.appendChild choice_dep opt;
-            )  violating; 
+            )  violating;   
 
           if (violating != []) then (
             visible old_fdep;
@@ -414,10 +425,11 @@ let onload _ =
   decomp_button2##.onclick := Dom_html.handler (fun _ -> (
         error_decomp##.innerHTML := (Js.string "");
         try (  
-          Firebug.console##log  input_schema_decomp##.value;
-          let schema = get_schema $ Js.to_string   input_schema_decomp##.value in
           Firebug.console##log  input_fdep_decomp##.value;
-          let fdep = get_fdep $ Js.to_string   input_fdep_decomp##.value in   
+          let fdep = get_fdep $ Js.to_string   input_fdep_decomp##.value in 
+
+          Firebug.console##log  input_schema_synth##.value;
+          let schema = smart_schema input_schema_decomp  fdep in  
 
           if reset schema fdep then (
             Firebug.console##log  (Js.string "new schema or fdep different from old one");

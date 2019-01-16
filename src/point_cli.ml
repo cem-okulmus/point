@@ -21,7 +21,7 @@ let rec get_input_schema () =
 
 let get_input_full () = 
   let implicit_schema fdep = 
-    List.fold_right (fun (a,b) c -> c @@ b @@ a) fdep empty in
+    List.fold_left (fun c (a,b)-> c @@ b @@ a) empty fdep  in
   let s = get_input_schema () in 
   let f = get_input_fdep () in 
   if equal s empty then 

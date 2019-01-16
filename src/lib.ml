@@ -235,7 +235,7 @@ let synthesis_procedure (s,f)  () : string list =
         "\t \t 3. Checking if a key candidate present in schemas:\n" ^
         "\t \t ==================================================\n" ^
 
-        sprintf "Key candidates are: { %s }\n\n" (slist_to_string keys) ^
+        sprintf "Key candidates are: %s \n\n" (slist_to_string keys) ^
 
         (   match check_for_prim_key s f schemas with
             | None  ->    
@@ -250,13 +250,13 @@ let synthesis_procedure (s,f)  () : string list =
       let fourth = 
         "\t \t 4. Removing all schemas which are subsets of others:\n" ^
         "\t \t ====================================================\n" ^
+        ( if ( redundant_schemas != []) then 
+            "\nRemoved following schemas:\n" ^
 
-        "\nRemoved following schemas:\n" ^
-
-        (List.fold_left (fun old (s,s2) -> 
-             old ^ sprintf "\tSchema: %s ⊆ %s \n" (sch_to_string s) (sch_to_string s2) )  "" redundant_schemas) ^
-
-        "\n Final schemas:    \n" ^
+            (List.fold_left (fun old (s,s2) -> 
+                 old ^ sprintf "\tSchema: %s ⊆ %s \n" (sch_to_string s) (sch_to_string s2) )  "" redundant_schemas) 
+          else "") ^
+        "\nFinal schemas:    \n" ^
         (List.fold_left (fun old (s,f) -> 
              old ^ sprintf "\tSchema: %s\t with keys %s \n \tFunctional dependencies: %s \n\n"
                (sch_to_string s)  (slist_to_string $ get_key_cand s f) (fdep_to_string $ canonical f) ) "" final_schemas ) ^
@@ -265,6 +265,12 @@ let synthesis_procedure (s,f)  () : string list =
     )
 
 (* Predicates for key_exercises  *)
+
+let predicate ?active:(a=true) p =
+  if a then 
+    p
+  else 
+    (fun a b -> true)
 
 let all_violating schema fdep = 
   let keys = get_key_cand schema fdep in
@@ -278,17 +284,27 @@ let third_only schema fdep =
 
 (* Try to generate useful fdeps for some predicate normform *)
 let key_exercises normform size_subschema num_keys length_keys input () =
-  let subsets = (List.filter (fun a -> cardinal a = size_subschema) (powerset input)) in
-  let fdep_generate schema : functional_dep = 
-    let get_subschema schema = 
-      List.nth subsets (Random.int (List.length subsets)) in
+  let fdep_generate () : functional_dep = 
+    let rec get_subschema_rec temp  =
+      let choose s  = List.nth (to_list s) (Random.int (cardinal s)) in
+      if cardinal temp >= size_subschema then 
+        temp 
+      else 
+        get_subschema_rec (add (choose (input -- temp)) temp) in 
+    let get_subschema () =
+      if size_subschema <= 0 then 
+        empty
+      else if (size_subschema >= cardinal input) then 
+        input
+      else 
+        get_subschema_rec empty in     
     Random.self_init ();
     let num_deps = (Random.int 2 ) + 4 in
-    List.init num_deps (fun _ -> (get_subschema schema ,get_subschema schema))   in
-  let rec repeat_until p f x = 
-    let temp = f x in 
+    List.init num_deps (fun _ -> (get_subschema () ,get_subschema ()))   in
+  let rec repeat_until p f = 
+    let temp = f () in 
     if p temp then temp
-    else repeat_until p f x  in 
+    else repeat_until p f  in 
   let predicate (fdeps:functional_dep ) = 
     (normform input fdeps) &&
     (List.length $ get_key_cand input fdeps) = num_keys &&  
@@ -297,7 +313,7 @@ let key_exercises normform size_subschema num_keys length_keys input () =
   if equal input empty then  
     "Can't work on empty schema 🙁\n" 
   else    
-    let fdep = repeat_until predicate fdep_generate input in 
+    let fdep = repeat_until predicate fdep_generate in 
     sprintf "\n\nSchema \t\t %s" (sch_to_string input)
     ^
     "\n\nProducing random dependency: \n"
@@ -305,7 +321,7 @@ let key_exercises normform size_subschema num_keys length_keys input () =
     sprintf "\n\t\t%s\nCanonical: \t%s"  
       (fdep_to_string fdep ) (fdep_to_string $ canonical fdep ) 
     ^
-    sprintf "\nWith keys: \t{ %s }"  (slist_to_string $  get_key_cand input fdep)
+    sprintf "\nWith keys: \t %s "  (slist_to_string $  get_key_cand input fdep)
 
 
 (* TODO extend this to give out more information too *)
@@ -321,7 +337,7 @@ let latex_transformer (s,f) () =
   (sprintf "               \t %s \n\n" (fdep_to_latex   f))              ^
   (sprintf "Canonical Cover\t %s \n"   (fdep_to_string $ canonical  f))  ^
   (sprintf "               \t %s \n\n" (fdep_to_latex  $ canonical  f )) ^
-  (sprintf "Keys\t\t { %s }\n\n" (slist_to_string $ get_key_cand s f ) ) ^
+  (sprintf "Keys\t\t %s\n\n" (slist_to_string $ get_key_cand s f ) ) ^
   if (is_in_bcnf s f) then 
     "Is in Boyce-Codd Normalform."
   else if (is_in_3NF s f) then     
