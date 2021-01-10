@@ -59,7 +59,7 @@ let onload _ =
     active_tablink##.className := Js.string ( (Js.to_string active_tablink##.className) ^ " active") in
 
   (** The main body of the point web page, using TyXML to easily represent the structure  *)
-  let html_div = Tyxml_js.To_dom.of_body Tyxml_js.Html.( 
+  let html_div = Js_of_ocaml_tyxml.Tyxml_js.To_dom.of_body Js_of_ocaml_tyxml.Tyxml_js.Html.( 
       body [ 
         h1 [txt "Presentation Of Interactive Normalform Transformations"];
         p [txt "Choose which tool you want to use (click the tab)"];

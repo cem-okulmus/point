@@ -57,7 +57,7 @@ let fitting_deps schema fdep =
 let decompose_schema schema fdep  (a,b) = 
   let fdep = closure schema fdep in 
   let schema_a = a @@ b in 
-  let schema_b = schema -- b in
+  let schema_b = schema -- (b -- a) in
   let fdep_a = fitting_deps schema_a fdep in 
   let fdep_b = fitting_deps schema_b fdep in 
   (schema_a, fdep_a),(schema_b, fdep_b)

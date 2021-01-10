@@ -25,3 +25,7 @@ setup.log
 
 # ignore compiled executable
 point
+
+
+# ignore project files
+.sublime-*
